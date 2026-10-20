@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xqisie UMD min test</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./demo.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="./index.html">
+            <img src="./icon.svg" alt="" width="28" height="28">
+            <span>xqisie test lab</span>
+        </a>
+        <nav aria-label="Test pages">
+            <a href="./browser.html">UMD</a>
+            <a href="./browser-min.html" aria-current="page">UMD min</a>
+            <a href="./esm.html">ESM</a>
+            <a href="./esm-min.html">ESM min</a>
+            <a href="./index.html">Index</a>
+        </nav>
+    </header>
+
+    <main class="shell">
+        <section class="status-band">
+            <div>
+                <p class="eyebrow">CDN bundle</p>
+                <h1>UMD minified build</h1>
+            </div>
+            <div id="summary" class="status-badge is-running" data-status="running" aria-live="polite">RUNNING</div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel" id="demo" aria-label="Live demo"></div>
+            <aside class="panel">
+                <h2>Checks</h2>
+                <ol id="checks" class="check-list"></ol>
+                <pre id="details" class="check-details">Waiting for checks.</pre>
+            </aside>
+        </section>
+
+        <p class="readout" id="readout">Loading ../lib/xqisie.min.js</p>
+    </main>
+
+    <script src="../lib/xqisie.min.js"></script>
+    <script src="./checks.js"></script>
+    <script src="./ua-checks.js"></script>
+    <script>
+        window.xqisieChecks.start({
+            page: 'umd-min',
+            title: 'UMD minified',
+            api: window.xqisie,
+            checks: [
+                ['exposes the window.xqisie global', function () {
+                    window.xqisieTest.assertEqual(
+                        typeof window.xqisie,
+                        'object',
+                        'the unpkg build must still define window.xqisie',
+                    );
+                }],
+            ],
+        });
+    </script>
+</body>
+
+</html>

@@ -1,25 +1,27 @@
 # xqisie
 
-这是一个检测游览器类型和跳转提示页面的JS插件。
+检测浏览器类型，并把使用 Internet Explorer 访问的访客引导到「请升级浏览器」提示页。
 
-[查看英文文档](./README.md)
+[View English documents](./README.md)
 
 ## 安装
 
-**游览器端**:
-
-引入cdn
+**浏览器端** — UMD 构建会暴露 `window.xqisie`：
 
 ```html
-<!-- Browser -->
-<script src="https://unpkg.com/xqisie/lib/xqisie.min.js"></script>
-<!-- es module -->
+<script src="https://unpkg.com/xqisie@0.1.0/lib/xqisie.min.js"></script>
+```
+
+**ES 模块** — 同时提供默认导出与具名导出：
+
+```html
 <script type="module">
-    import xqisie from '../lib/xqisie-esm.min.js';
+    import xqisie from 'https://unpkg.com/xqisie@0.1.0/lib/xqisie-esm.min.mjs';
+    // 也可以：import { check, goLink } from 'https://unpkg.com/xqisie@0.1.0/lib/xqisie-esm.min.mjs';
 </script>
 ```
 
-**Node**:
+**Node / 打包工具**：
 
 ```sh
 npm install xqisie
@@ -27,51 +29,102 @@ npm install xqisie
 
 ```js
 const xqisie = require('xqisie');
+// 或：import xqisie from 'xqisie';
 ```
 
 ## 使用
 
-+ 检测游览器
+### check(userAgent?)
+
+返回 `'Chrome'`、`'IE'`、`'Firefox'`、`'Opera'`、`'Safari'` 之一；都不匹配时返回 `''`。
 
 ```js
 const browser = xqisie.check();
 console.log('Browser is:', browser);
 ```
 
-+ 跳转提示页面
+传入 UA 字符串即可判断指定的请求，而不是当前浏览器。**传参时完全不读取 `navigator`**，
+所以可以安全地放在服务端使用：
+
+```js
+const http = require('http');
+const xqisie = require('xqisie');
+
+http.createServer((req, res) => {
+    res.end('browser is: ' + (xqisie.check(req.headers['user-agent']) || 'unknown'));
+}).listen(3000, 'localhost');
+```
+
+判断顺序是有意设计的：Opera 早于 Chrome（它的 UA 里两者都含），Safari 放在最后（几乎所有
+WebKit 系 UA 都含 `Safari`）。
+
+### goLink(url?)
+
+仅在 IE 下把当前页跳转到 `url`（默认 `../page/`）。返回布尔值表示是否发生了跳转，且**永不抛错**
+—— Node 或 Worker 里没有 `location`，它会直接返回 `false`。
 
 ```js
 xqisie.goLink('./page/index.html');
 ```
 
-+ node
+### 提示页
+
+`page/` 目录里是一套现成的「浏览器版本过低」页面（`index.html`）、跳转脚本（`js/index.js`）
+以及配套样式与图标。把这个目录拷到你的站点，再让 `goLink()` 指向它：
 
 ```js
-const http = require('http');
-const xqisie = require('../lib/xqisie');
-
-const server = http.createServer((req, res) => {
-    
-    if (req.url === '/') {
-        const ua = req.headers['user-agent'];
-        const browser = xqisie.check(ua);
-        if (browser) {
-            res.end('browser is:'+browser);
-        } else {
-            res.end('thanks.');
-        }
-    }
-});
-
-server.listen(3000, 'localhost', () => {
-    console.log('xqisie server is running on http://localhost:3000 !');
-});
-
+xqisie.goLink('/page/');
 ```
+
+跳转脚本按名字读取 `?url=`，只接受 `http:` 与 `https:` 目标（`javascript:`、`data:` 会被拒绝），
+并且能在 IE 11 上运行 —— IE 11 既没有 `URLSearchParams` 也没有 `URL` 构造器。
+
+## 返回值与已知限制
+
+| UA 中包含 | `check()` 返回 |
+| --- | --- |
+| `OPR/` 或 `Opera` | `'Opera'` |
+| `Trident` 或 `MSIE` | `'IE'` |
+| `Chrome` | `'Chrome'` |
+| `Firefox` | `'Firefox'` |
+| `Safari` | `'Safari'` |
+| 都不包含 | `''` |
+
+以下限制是**有意保留**的稳定行为：
+
+- **Edge 返回 `'Chrome'`**。现代 Edge 的 UA 里带 `Chrome/`。新增第六个返回值会破坏所有按现有
+  五个值做分支的调用方。
+- **iOS 上的浏览器返回 `'Safari'`**。iOS 的 Chrome（`CriOS/`）与 Firefox（`FxiOS/`）UA 里都带
+  `Safari/`。
+- **IE 只根据 `Trident`/`MSIE` 判断**，覆盖 IE 6 到 IE 11，不再读取非标准的
+  `navigator.appVersion`。
 
 ## 查看示例
 
-运行这个脚本查看展示案例：`npm run test:node`, `npm run test:browser`。
+```sh
+npm run test:browser
+```
+
+然后打开 <http://127.0.0.1:4001/test/>。首页按「消费路径」列出每一页 —— UMD 可读、UMD 压缩、
+ESM 可读、ESM 压缩 —— 外加提示页。每个检查页都会针对已提交的产物跑一遍自己的用例，逐条显示
+`PENDING`／`PASS`／`FAIL`，跑完还会留一个可交互的演示面板。
+
+## 开发
+
+`src/index.js` 是唯一手写的源码。`lib/` 下的所有文件都由 `scripts/build.mjs` 生成，并且提交进
+仓库，以保证 CDN 路径始终可用。
+
+```sh
+npm run build          # 由 src/ 重新生成 lib/
+npm run check:dist     # lib/ 落后于 src/ 时失败
+npm test               # node --test，会先重建 lib/
+npm run test:browser   # 启动测试页服务器
+npm run test:browser:check   # 在无头 Chrome/Edge 里跑所有页面
+npm run verify         # check:dist + test + 无头浏览器
+```
+
+`src/index.js` 刻意写成纯 ES5 脚本体：构建时会把这个正文分别包进 UMD 与 ESM 两种外壳，因此它
+不能包含 `import`/`export`。ES5 也是硬性要求 —— 这个库必须能在它所检测的那些老浏览器里执行。
 
 ## 提问题
 

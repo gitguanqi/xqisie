@@ -1,29 +1,61 @@
 {
-"name": "xqisie",
-"version": "0.0.2",
-"description": "This check browser type and go link tip page plugin.",
-"main": "lib/xqisie.js",
-"directories": {
+  "name": "xqisie",
+  "version": "0.1.0",
+  "description": "Detect the browser from a user agent string and send IE visitors to a tip page.",
+  "main": "lib/xqisie.js",
+  "module": "lib/xqisie-esm.mjs",
+  "browser": "lib/xqisie.min.js",
+  "unpkg": "lib/xqisie.min.js",
+  "jsdelivr": "lib/xqisie.min.js",
+  "files": [
+    "lib",
+    "page",
+    "zh.md"
+  ],
+  "exports": {
+    ".": {
+      "import": "./lib/xqisie-esm.mjs",
+      "require": "./lib/xqisie.js",
+      "default": "./lib/xqisie.js"
+    },
+    "./lib/*": "./lib/*",
+    "./page/*": "./page/*",
+    "./package.json": "./package.json"
+  },
+  "sideEffects": false,
+  "directories": {
     "lib": "lib",
     "test": "test"
-},
-"scripts": {
-    "test": "echo Error: no test specified && exit 1",
-    "test:browser": "live-server --port=4001 --host=localhost",
-    "test:node": "node ./test/node.js"
-},
-"repository": {
+  },
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "check:dist": "node scripts/build.mjs --check",
+    "prepublishOnly": "node scripts/build.mjs",
+    "pretest": "node scripts/build.mjs",
+    "test": "node --test test/core.test.mjs test/package.test.mjs test/browser-pages.test.mjs test/server.test.mjs test/tip-page.test.mjs",
+    "test:node": "node test/node.js",
+    "test:browser": "node scripts/serve.mjs",
+    "test:browser:check": "node scripts/test-browser.mjs",
+    "verify": "node scripts/build.mjs --check && npm test && npm run test:browser:check"
+  },
+  "repository": {
     "type": "git",
     "url": "git+https://github.com/gitguanqi/xqisie.git"
-},
-"keywords": [
-    "xqisie"
-],
-"author": "gitguanqi",
-"license": "MIT",
-"bugs": {
+  },
+  "keywords": [
+    "xqisie",
+    "user-agent",
+    "browser-detect",
+    "ie",
+    "navigator"
+  ],
+  "author": "gitguanqi",
+  "license": "MIT",
+  "bugs": {
     "url": "https://github.com/gitguanqi/xqisie/issues"
-},
-"homepage": "https://github.com/gitguanqi/xqisie#readme"
-}          
-        
+  },
+  "homepage": "https://github.com/gitguanqi/xqisie#readme",
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

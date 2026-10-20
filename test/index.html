@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>xqisie test lab</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./demo.css">
+</head>
+
+<body>
+    <header class="site-header">
+        <a class="brand" href="./index.html">
+            <img src="./icon.svg" alt="" width="28" height="28">
+            <span>xqisie test lab</span>
+        </a>
+        <nav aria-label="Test pages">
+            <a href="./browser.html">UMD</a>
+            <a href="./browser-min.html">UMD min</a>
+            <a href="./esm.html">ESM</a>
+            <a href="./esm-min.html">ESM min</a>
+            <a href="./index.html" aria-current="page">Index</a>
+        </nav>
+    </header>
+
+    <main class="shell">
+        <section class="status-band">
+            <div>
+                <p class="eyebrow">Overview</p>
+                <h1>Every consumption path, self-checking</h1>
+            </div>
+            <div id="summary" class="status-badge is-running" data-status="running" aria-live="polite">DETECTING</div>
+        </section>
+
+        <section class="page-grid" aria-label="Available test pages">
+            <a class="page-link" href="./browser.html">
+                <span class="page-number">01</span>
+                <strong>UMD readable build</strong>
+                <span>Loads <code>../lib/xqisie.js</code> through a plain script tag and exercises the window global.</span>
+            </a>
+            <a class="page-link" href="./browser-min.html">
+                <span class="page-number">02</span>
+                <strong>UMD minified build</strong>
+                <span>Loads <code>../lib/xqisie.min.js</code>, the file unpkg and jsdelivr serve.</span>
+            </a>
+            <a class="page-link" href="./esm.html">
+                <span class="page-number">03</span>
+                <strong>ESM readable build</strong>
+                <span>Imports <code>../lib/xqisie-esm.js</code> and checks named export identity.</span>
+            </a>
+            <a class="page-link" href="./esm-min.html">
+                <span class="page-number">04</span>
+                <strong>ESM minified build</strong>
+                <span>Imports <code>../lib/xqisie-esm.min.mjs</code>, the manifest's <code>import</code> target.</span>
+            </a>
+            <a class="page-link" href="../page/index.html">
+                <span class="page-number">05</span>
+                <strong>Tip pages</strong>
+                <span>The browser upgrade page and its redirect shim, exactly as a visitor sees them.</span>
+            </a>
+        </section>
+
+        <p class="readout" id="readout">Detecting this browser with the minified bundle.</p>
+    </main>
+
+    <script src="../lib/xqisie.min.js"></script>
+    <script>
+        (function () {
+            var badge = document.getElementById('summary');
+            var readout = document.getElementById('readout');
+            var browser = window.xqisie.check();
+
+            badge.className = 'status-badge is-passed';
+            badge.textContent = browser || 'UNKNOWN';
+            badge.setAttribute('data-status', 'passed');
+            readout.textContent = 'This browser resolves to "' + (browser || '') + '" via check(). ' +
+                'Each scenario page runs its own suite and reports PASS or FAIL inline.';
+        }());
+    </script>
+</body>
+
+</html>

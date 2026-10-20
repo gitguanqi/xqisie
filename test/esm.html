@@ -3,22 +3,75 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xqisie esm test</title>
+    <title>xqisie ESM test</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./demo.css">
 </head>
 
 <body>
-    <h3>xqisie esm test</h3>
+    <header class="site-header">
+        <a class="brand" href="./index.html">
+            <img src="./icon.svg" alt="" width="28" height="28">
+            <span>xqisie test lab</span>
+        </a>
+        <nav aria-label="Test pages">
+            <a href="./browser.html">UMD</a>
+            <a href="./browser-min.html">UMD min</a>
+            <a href="./esm.html" aria-current="page">ESM</a>
+            <a href="./esm-min.html">ESM min</a>
+            <a href="./index.html">Index</a>
+        </nav>
+    </header>
+
+    <main class="shell">
+        <section class="status-band">
+            <div>
+                <p class="eyebrow">ES module</p>
+                <h1>ESM readable build</h1>
+            </div>
+            <div id="summary" class="status-badge is-running" data-status="running" aria-live="polite">RUNNING</div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel" id="demo" aria-label="Live demo"></div>
+            <aside class="panel">
+                <h2>Checks</h2>
+                <ol id="checks" class="check-list"></ol>
+                <pre id="details" class="check-details">Waiting for checks.</pre>
+            </aside>
+        </section>
+
+        <p class="readout" id="readout">Loading ../lib/xqisie-esm.js</p>
+    </main>
+
+    <script src="./checks.js"></script>
+    <script src="./ua-checks.js"></script>
     <script type="module">
-        import xqisie from '../lib/xqisie-esm.js';
-        const browser = xqisie.check();
-        console.log('Browser is:', browser);
+        import api, { check, goLink } from '../lib/xqisie-esm.js';
 
-        setTimeout(function (){
-            xqisie.goLink('../page/index.html');
-        }, 3000);
-
+        window.xqisieChecks.start({
+            page: 'esm',
+            title: 'ESM readable',
+            api: api,
+            checks: [
+                ['default export carries the API', function () {
+                    window.xqisieTest.assertEqual(typeof api.check, 'function', 'the default export has no check()');
+                    window.xqisieTest.assertEqual(typeof api.goLink, 'function', 'the default export has no goLink()');
+                }],
+                ['named exports match the default export', function () {
+                    window.xqisieTest.assertEqual(api.check, check, 'default.check must be the named check');
+                    window.xqisieTest.assertEqual(api.goLink, goLink, 'default.goLink must be the named goLink');
+                }],
+                ['does not leak a global', function () {
+                    window.xqisieTest.assertEqual(
+                        typeof window.xqisie,
+                        'undefined',
+                        'the ESM build must not define window.xqisie',
+                    );
+                }],
+            ],
+        });
     </script>
 </body>
 

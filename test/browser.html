@@ -3,23 +3,67 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>xqisie browser test</title>
+    <title>xqisie UMD test</title>
+    <link rel="icon" href="./icon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="./demo.css">
 </head>
 
 <body>
-    <h3>xqisie browser test</h3>
-    <script src="../lib/xqisie.js"></script>
-    <script>
-        const browser = xqisie.check();
-        console.log('Browser is:', browser);
-        
-        setTimeout(function (){
-            xqisie.goLink('../page/index.html');
-        }, 3000);
+    <header class="site-header">
+        <a class="brand" href="./index.html">
+            <img src="./icon.svg" alt="" width="28" height="28">
+            <span>xqisie test lab</span>
+        </a>
+        <nav aria-label="Test pages">
+            <a href="./browser.html" aria-current="page">UMD</a>
+            <a href="./browser-min.html">UMD min</a>
+            <a href="./esm.html">ESM</a>
+            <a href="./esm-min.html">ESM min</a>
+            <a href="./index.html">Index</a>
+        </nav>
+    </header>
 
+    <main class="shell">
+        <section class="status-band">
+            <div>
+                <p class="eyebrow">Browser bundle</p>
+                <h1>UMD readable build</h1>
+            </div>
+            <div id="summary" class="status-badge is-running" data-status="running" aria-live="polite">RUNNING</div>
+        </section>
+
+        <section class="workspace">
+            <div class="panel" id="demo" aria-label="Live demo"></div>
+            <aside class="panel">
+                <h2>Checks</h2>
+                <ol id="checks" class="check-list"></ol>
+                <pre id="details" class="check-details">Waiting for checks.</pre>
+            </aside>
+        </section>
+
+        <p class="readout" id="readout">Loading ../lib/xqisie.js</p>
+    </main>
+
+    <script src="../lib/xqisie.js"></script>
+    <script src="./checks.js"></script>
+    <script src="./ua-checks.js"></script>
+    <script>
+        window.xqisieChecks.start({
+            page: 'umd',
+            title: 'UMD readable',
+            api: window.xqisie,
+            checks: [
+                ['exposes the window.xqisie global', function () {
+                    window.xqisieTest.assertEqual(
+                        typeof window.xqisie,
+                        'object',
+                        'a plain <script src> must define window.xqisie',
+                    );
+                }],
+            ],
+        });
     </script>
 </body>
 
-</html>   
+</html>
