@@ -103,6 +103,17 @@ Known limitations, kept stable on purpose:
 - **IE is detected from `Trident`/`MSIE` alone**, which covers IE 6 through 11 without reading
   the non-standard `navigator.appVersion`.
 
+## For AI agents
+
+The package ships its own machine-readable description, declared in `package.json`:
+
+- `llms.txt` (`"llms"`) — the compact API reference: exports, the five return values, option
+  defaults, and the constraints that are behaviour rather than trivia. Readable from an install
+  via `require.resolve('xqisie/llms.txt')`.
+- `skills/xqisie-ie-guard/SKILL.md` (`"agents"`) — integration guidance: where the guard belongs,
+  how to place the tip pages, the failures people actually hit, and how to verify a cutoff.
+  `<skill>/references/api.md` holds the exact tables.
+
 ## View xqisie
 
 ```sh

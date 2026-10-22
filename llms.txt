@@ -1,0 +1,98 @@
+# xqisie
+
+Detect the browser from a user agent string and send Internet Explorer visitors to a bundled
+"your browser is too old" page. Ships as UMD (browser global + CommonJS) and as an ES module;
+detection also works in Node.js, because a supplied UA string never touches `navigator`.
+
+## Install
+
+```sh
+npm install xqisie
+```
+
+CDN, no build step:
+
+```html
+<script src="https://unpkg.com/xqisie@0.1.0/lib/xqisie.min.js"></script>
+<!-- exposes window.xqisie -->
+```
+
+## Imports
+
+```js
+const xqisie = require('xqisie');          // CommonJS -> lib/xqisie.js (UMD)
+import xqisie from 'xqisie';               // ESM      -> lib/xqisie-esm.mjs
+import { check, goLink } from 'xqisie';    // named exports are the same two functions
+```
+
+Raw files stay reachable through the subpaths `xqisie/lib/*` and `xqisie/page/*`. No TypeScript
+declarations are published.
+
+## Exported API
+
+- `check(userAgent?: string): 'Chrome' | 'IE' | 'Firefox' | 'Opera' | 'Safari' | ''`
+  Returns the browser family, or `''` when nothing matches. Passing a string inspects that UA
+  instead of the ambient one and **never reads `navigator`**, so it is server-safe.
+- `goLink(url?: string): boolean`
+  Sets `location.href` to `url` **only** when `check()` reports `'IE'`. Returns `true` when it
+  navigated, `false` otherwise, and never throws: with no `location` (Node, Worker, a DOM-less
+  sandbox) it reports `false` instead of raising.
+
+Those two functions are the entire runtime API; the default export is `{ check, goLink }`.
+
+## Return values and detection order
+
+| UA contains | `check()` returns |
+| --- | --- |
+| `OPR/` or `Opera` | `'Opera'` |
+| `Trident` or `MSIE` | `'IE'` |
+| `Chrome` | `'Chrome'` |
+| `Firefox` | `'Firefox'` |
+| `Safari` | `'Safari'` |
+| none of the above | `''` |
+
+The order is part of the contract: Opera is tested before Chrome (its UA carries both) and
+Safari last (nearly every WebKit UA contains `Safari`).
+
+## Key options
+
+- `userAgent` — default `navigator.userAgent`, or `''` where that is absent. A non-empty string
+  wins over the ambient value.
+- `url` — default `'../page/'`. Any string; the browser resolves it, so a relative value is
+  relative to the current document. Prefer an absolute path in production.
+
+## Typical use
+
+Gate a page before the application boots:
+
+```html
+<script src="https://unpkg.com/xqisie@0.1.0/lib/xqisie.min.js"></script>
+<script>
+  xqisie.goLink('/browser-tip/');   // no-op in every browser except IE
+</script>
+```
+
+Classify requests server-side:
+
+```js
+const http = require('http');
+const xqisie = require('xqisie');
+
+http.createServer((req, res) => {
+  res.end('browser is: ' + (xqisie.check(req.headers['user-agent']) || 'unknown'));
+}).listen(3000, 'localhost');
+```
+
+## Constraints
+
+- **Five return values plus `''`.** Edge reports `'Chrome'` and iOS Chrome/Firefox report
+  `'Safari'`; both are deliberate. Branch on the current five values only.
+- Detection uses the `Trident`/`MSIE` substrings and never reads `navigator.appVersion`.
+- `goLink()` redirects and returns a boolean; it renders nothing of its own.
+- `page/` is a copy-paste tip page (`index.html`, `go.html`, a redirect shim, CSS and icons).
+  Copy the whole directory: the internal asset links are relative. The shim reads `?url=` by
+  name, accepts only `http:`/`https:` targets (`javascript:`, `data:` and protocol-relative
+  values are refused), waits 886 ms, then calls `location.replace()`.
+- Everything is ES5 on purpose, including the tip-page shim, because it must execute on the
+  browsers it detects.
+- The manifest sets no `"type": "module"`, so `require('xqisie')` keeps resolving to the UMD build.

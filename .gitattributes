@@ -1,0 +1,4 @@
+# Husky hooks are POSIX shell scripts. core.autocrlf converts them to CRLF on
+# checkout, which makes sh treat the trailing carriage return as part of the
+# command, so the hooks are pinned to LF on every platform.
+.husky/* text eol=lf

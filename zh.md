@@ -99,6 +99,15 @@ xqisie.goLink('/page/');
 - **IE 只根据 `Trident`/`MSIE` 判断**，覆盖 IE 6 到 IE 11，不再读取非标准的
   `navigator.appVersion`。
 
+## 供 AI 代理读取
+
+包内自带机器可读说明，并在 `package.json` 中声明：
+
+- `llms.txt`（`"llms"` 字段）—— 精简 API 参考：导出、五个返回值、参数默认值，以及那些属于
+  行为约定而非细节的限制。安装后可用 `require.resolve('xqisie/llms.txt')` 定位。
+- `skills/xqisie-ie-guard/SKILL.md`（`"agents"` 字段）—— 集成指引：拦截逻辑该放在哪里、提示页
+  如何落地、常见故障与验证方式。精确表格在 `<skill>/references/api.md`。
+
 ## 查看示例
 
 ```sh

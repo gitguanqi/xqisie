@@ -1,15 +1,19 @@
 {
   "name": "xqisie",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Detect the browser from a user agent string and send IE visitors to a tip page.",
   "main": "lib/xqisie.js",
   "module": "lib/xqisie-esm.mjs",
   "browser": "lib/xqisie.min.js",
   "unpkg": "lib/xqisie.min.js",
   "jsdelivr": "lib/xqisie.min.js",
+  "llms": "./llms.txt",
+  "agents": "./skills/xqisie-ie-guard/SKILL.md",
   "files": [
     "lib",
     "page",
+    "skills",
+    "llms.txt",
     "zh.md"
   ],
   "exports": {
@@ -20,6 +24,7 @@
     },
     "./lib/*": "./lib/*",
     "./page/*": "./page/*",
+    "./llms.txt": "./llms.txt",
     "./package.json": "./package.json"
   },
   "sideEffects": false,
@@ -32,11 +37,13 @@
     "check:dist": "node scripts/build.mjs --check",
     "prepublishOnly": "node scripts/build.mjs",
     "pretest": "node scripts/build.mjs",
-    "test": "node --test test/core.test.mjs test/package.test.mjs test/browser-pages.test.mjs test/server.test.mjs test/tip-page.test.mjs",
+    "test": "node --test test/core.test.mjs test/package.test.mjs test/browser-pages.test.mjs test/server.test.mjs test/tip-page.test.mjs test/agent-metadata.test.mjs",
     "test:node": "node test/node.js",
     "test:browser": "node scripts/serve.mjs",
     "test:browser:check": "node scripts/test-browser.mjs",
-    "verify": "node scripts/build.mjs --check && npm test && npm run test:browser:check"
+    "verify": "node scripts/build.mjs --check && npm test && npm run test:browser:check",
+    "commitlint": "commitlint --edit",
+    "prepare": "husky"
   },
   "repository": {
     "type": "git",
@@ -56,6 +63,10 @@
   },
   "homepage": "https://github.com/gitguanqi/xqisie#readme",
   "devDependencies": {
-    "esbuild": "^0.28.2"
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "esbuild": "^0.28.2",
+    "husky": "^9.1.7",
+    "lint-staged": "^17.6.0"
   }
 }
